@@ -1,0 +1,157 @@
+namespace org.zonetwyn.production
+
+/**
+ * Assets
+ */
+asset Seed identified by seedId {
+  o String seedId
+  o DateTime expiredAt
+  o Double price
+  --> Owner owner
+}
+
+asset Bean identified by beanId {
+  o String beanId
+  o DateTime harvestedAt
+  o Double price
+  --> Owner owner
+}
+
+enum ProductType {
+  o COCOA_POWDER
+  o CHOCOLATE
+}
+
+asset Product identified by productId {
+  o String productId
+  o String productName
+  o DateTime issuedAt
+  o DateTime expiredAt
+  o ProductType type default = "CHOCOLATE"
+  o Double price
+  --> Owner owner
+}
+
+asset Stock identified by stockId {
+  o String stockId
+  o Integer quantity
+  --> Product product
+  --> Owner owner
+}
+
+asset Order identified by orderId {
+  o String orderId
+  o DateTime issuedAt
+  o Double totalPrice
+  o Record[] records
+  --> Market market
+  --> Customer customer
+}
+
+/**
+ * Participants
+ */
+
+enum OwnerType {
+  o TRADER
+  o FARMER
+  o FACTORY
+  o MARKET
+  o CUSTOMER
+}
+
+enum OwnerGender {
+  o FEMALE
+  o MALE
+}
+
+abstract participant Owner identified by ownerId {
+  o String ownerId
+  o OwnerType type default = "TRADER"
+  o String firstName
+  o String lastName
+  o Double balance default = 10000.0
+}
+
+participant Trader extends Owner {
+  o String marketAddress
+  --> Seed[] seeds
+}
+
+participant Farmer extends Owner {
+  o Integer age
+  o Integer plantationAge
+  o Double surface
+  o Integer harvestersCount
+  --> Seed[] seeds
+  --> Bean[] beans
+}
+
+participant Factory extends Owner {
+  o DateTime createdAt
+  o Integer productionDuration
+  --> Bean[] beans
+  --> Product[] products
+}
+
+participant Market extends Owner {
+  o String publicName
+  --> Product[] products
+  --> Order[] orders
+}
+
+participant Customer extends Owner {
+  o String gender default = "MALE"
+  o Integer age
+  --> Order[] orders
+}
+
+/**
+ * Concepts
+ */
+concept Record {
+  o Integer quantity
+  o String name
+}
+
+/**
+ * Transactions
+ */
+
+abstract transaction Trade {
+  o Integer quantity
+}
+  
+transaction GenerateSeed {
+  --> Trader trader
+}
+
+transaction TradeSeed extends Trade {
+  --> Owner trader
+  --> Owner farmer
+}
+  
+transaction Harvest {
+  --> Farmer farmer
+}  
+  
+transaction TradeBean extends Trade {
+  --> Owner farmer
+  --> Owner factory
+}
+  
+transaction Transformation {
+  --> Factory factory
+}  
+
+transaction TradeProduct {
+  o Record[] records
+  --> Owner factory
+  --> Owner market
+}
+
+transaction ProcessOrder {
+  o Record[] records
+  --> Owner market
+  --> Owner customer
+} 

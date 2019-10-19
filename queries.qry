@@ -1,0 +1,13 @@
+query selectProductByName {
+  description: "Select prodcut by name"
+  statement:
+    SELECT org.zonetwyn.production.Product
+      WHERE (productName == _$productName AND owner == _$factoryId)
+}
+
+query selectStockByProduct {
+  description: "Select stock by product"
+  statement: 
+    SELECT org.zonetwyn.production.Stock
+      WHERE (product == _$productId)
+}

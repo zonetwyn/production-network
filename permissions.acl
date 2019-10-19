@@ -1,0 +1,17 @@
+rule CustomerCanReadOrders {
+  description: "Allow customer to access his own orders"
+  participant(p): "org.zonetwyn.production.Customer"
+  operation: READ
+  resource(r): "org.zonetwyn.production.Order"
+  condition: (p.getIdentifier() === r.customer.getIdentifier())
+  action: ALLOW
+}
+
+rule MarketCanReadOrders {
+  description: "Allow market to access his own orders"
+  participant(p): "org.zonetwyn.production.Market"
+  operation: READ
+  resource(r): "org.zonetwyn.production.Order"
+  condition: (p.getIdentifier() === r.market.getIdentifier())
+  action: ALLOW
+}
